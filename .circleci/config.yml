@@ -1,0 +1,41 @@
+version: 2.1
+
+jobs:
+  build:
+    working_directory: ~/circleci-python
+    docker:
+      - image: "circleci/python:3.6.4"
+    steps:
+      - checkout
+      - run: python3 main.py
+  deploy:
+    docker:
+      - image: cimg/base:2022.06
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Build and push to Docker Hub
+          command: |
+            docker build -t charan .
+            echo "Shanmukh@0410" | docker login -u "shanmukhsreerangam" --password-stdin
+            docker tag charan:latest shanmukhsreerangam/project:shrt
+            docker push shanmukhsreerangam/project:shrt
+  test:
+    working_directory: ~/circleci-python
+    docker:
+      - image: "circleci/python:3.6.4"
+    steps:
+      - checkout
+      - run: python3 main-test.py
+    
+
+workflows:
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy
