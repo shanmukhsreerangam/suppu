@@ -1,41 +1,26 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build:
-    working_directory: ~/circleci-python
+  say-hello:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      - image: "circleci/python:3.6.4"
+      - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
-      - run: python3 main.py
-  deploy:
-    docker:
-      - image: cimg/base:2022.06
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
       - run:
-          name: Build and push to Docker Hub
-          command: |
-            docker build -t charan .
-            echo "Shanmukh@0410" | docker login -u "shanmukhsreerangam" --password-stdin
-            docker tag charan:latest shanmukhsreerangam/project:shrt
-            docker push shanmukhsreerangam/project:shrt
-  test:
-    working_directory: ~/circleci-python
-    docker:
-      - image: "circleci/python:3.6.4"
-    steps:
-      - checkout
-      - run: python3 main-test.py
-    
+          name: "Say hello"
+          command: "echo Hello, World!"
 
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  build_and_test:
+  say-hello-workflow:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
-      - deploy
+      - say-hello
